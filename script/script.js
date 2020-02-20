@@ -1,3 +1,22 @@
+
+
+const DATA = {
+  whichSite: ['landing', 'multiPage', 'onlineStore'],
+  price: [4000, 8000, 26000],
+  desktopTemplates: [50, 40, 30],
+  adapt: 20,
+  mobileTemplates: 15,
+  editable: 10,
+  metrikaYandex: [500, 1000, 2000],
+  analyticsGoogle: [850, 1350, 3000],
+  sendOrder: 500,
+  deadlineDay: [[2, 7], [3, 10], [7, 14]],
+  deadlinePercent: [20, 17 , 15]
+}
+
+
+
+
 const startButton = document.querySelector('.start-button');
 const firstScreen = document.querySelector('.first-screen');
 const mainForm = document.querySelector('.main-form');
@@ -5,6 +24,9 @@ const formCalculate = document.querySelector('.form-calculate');
 const endButton = document.querySelector('.end-button');
 const totalElem = document.querySelector('.total');
 const fastRange = document.querySelector('.fast-range');
+const totalPriceSum = document.querySelector('.total_price__sum');
+const mobileTemplates = document.querySelector('#mobileTemplates');
+const adapt = document.querySelector('#adapt');
 
 function showElem(elem) {
   elem.style.display = 'block';
@@ -16,12 +38,67 @@ function hideElem(elem) {
 
 }
 
+
+
+function priceCalculation(elem) {
+  let result = 0;
+  let index = 0;
+  let options = []; 
+  if (elem.name === 'whichSite') {
+    for(const item of formCalculate.elements) {
+      if (item.type === 'checkbox') {
+        item.checked = false;
+      }
+    }
+    hideElem(fastRange);
+  }
+
+  for (const item of formCalculate.elements) {
+    if(item.name === 'whichSite' && item.checked) {
+      index = DATA.whichSite.indexOf(item.value);
+    }else if (item.classList.contains('calc-handler') && item.checked) {
+      options.push(item.value);
+    }
+  }
+
+  options.forEach(function(key) {
+    if (typeof(DATA[key]) === 'number') {
+      if (key === 'sendOrder') {
+        result += DATA[key]
+      }else {
+        result += DATA.price[index] * DATA[key] / 100
+      }
+    }else {
+      if (key === 'desktopTemplates') {
+        result += DATA.price[index] * DATA.desktopTemplates[index] / 100
+      }else {
+        result+= DATA[key][index]
+      }
+    }
+  })
+
+  result += DATA.price[index];
+
+
+
+  totalPriceSum.textContent = result;
+}
+
 function handlerCallBackForm(event) {
   const target = event.target;
 
   if (target.classList.contains('want-faster')) {
-   
-    target.checked ? showElem(fastRange) : hideElem(fastRange)
+    target.checked ? showElem(fastRange) : hideElem(fastRange);
+  }
+
+  if (!adapt.checked) {
+    mobileTemplates.disabled = 1;
+  }else {
+    mobileTemplates.disabled = 0;
+  }
+
+  if (target.classList.contains('calc-handler')) {
+    priceCalculation(target);
   }
 }
 
