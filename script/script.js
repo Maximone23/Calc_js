@@ -1,5 +1,7 @@
 
 
+const DAY_STRING = ['день', 'дня', 'дней'] 
+
 const DATA = {
   whichSite: ['landing', 'multiPage', 'onlineStore'],
   price: [4000, 8000, 26000],
@@ -25,8 +27,24 @@ const endButton = document.querySelector('.end-button');
 const totalElem = document.querySelector('.total');
 const fastRange = document.querySelector('.fast-range');
 const totalPriceSum = document.querySelector('.total_price__sum');
-const mobileTemplates = document.querySelector('#mobileTemplates');
-const adapt = document.querySelector('#adapt');
+const mobileTemplates = document.getElementById('mobileTemplates');
+const adapt = document.getElementById('adapt');
+const typeSite = document.querySelector('.type-site');
+const maxDeadline = document.querySelector('.max-deadline');
+const rangeDeadline = document.querySelector('.range-deadline');
+const deadlineValue = document.querySelector('.deadline-value');
+const checkboxText = document.querySelectorAll('.checkbox-label');
+
+
+
+
+
+
+function declOfNum(n, titles) {
+  return n + ' ' + titles[n % 10 === 1 && n % 100 !== 11 ?
+    0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2];
+}
+
 
 function showElem(elem) {
   elem.style.display = 'block';
@@ -39,11 +57,30 @@ function hideElem(elem) {
 }
 
 
+function renderTextContent(total, site, maxDay, minDay) {
+
+  totalPriceSum.textContent = total;
+  typeSite.textContent = site;
+  maxDeadline.textContent = declOfNum (maxDay, DAY_STRING);
+  rangeDeadline.min = minDay;
+  rangeDeadline.max = maxDay;
+  deadlineValue.textContent = declOfNum(rangeDeadline.value, DAY_STRING);
+}
+
+
 
 function priceCalculation(elem) {
   let result = 0;
   let index = 0;
   let options = []; 
+  let site = ''; 
+  let maxDeadlineDay = DATA.deadlineDay[index][1]; 
+  let minDeadlineDay = DATA.deadlineDay[index][0];
+  
+  
+
+
+
   if (elem.name === 'whichSite') {
     for(const item of formCalculate.elements) {
       if (item.type === 'checkbox') {
@@ -56,6 +93,8 @@ function priceCalculation(elem) {
   for (const item of formCalculate.elements) {
     if(item.name === 'whichSite' && item.checked) {
       index = DATA.whichSite.indexOf(item.value);
+      site = item.dataset.site;
+      maxDeadlineDay = DATA.deadlineDay[index][1]
     }else if (item.classList.contains('calc-handler') && item.checked) {
       options.push(item.value);
     }
@@ -79,9 +118,9 @@ function priceCalculation(elem) {
 
   result += DATA.price[index];
 
+  renderTextContent(result, site, maxDeadlineDay, minDeadlineDay);
 
-
-  totalPriceSum.textContent = result;
+  
 }
 
 function handlerCallBackForm(event) {
@@ -91,11 +130,19 @@ function handlerCallBackForm(event) {
     target.checked ? showElem(fastRange) : hideElem(fastRange);
   }
 
-  if (!adapt.checked) {
-    mobileTemplates.disabled = 1;
+  if (adapt.checked) {
+    mobileTemplates.disabled = false;
   }else {
-    mobileTemplates.disabled = 0;
+    mobileTemplates.disabled = true;
+    mobileTemplates.checked = false;
   }
+  for(const item of checkboxText) {
+    if (target.classList.contains('calc-handler') && target.checked) {
+      console.log(item);
+      item.innerHTML = 'Да';
+    }
+  }
+  
 
   if (target.classList.contains('calc-handler')) {
     priceCalculation(target);
